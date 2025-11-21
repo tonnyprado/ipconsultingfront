@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { lookupIp, getLogs, deleteLog, clearLogs } from "../api/ipApi";
 import IpInput from "../components/IpInput";
 import IpTable from "../components/IpTable";
@@ -18,11 +18,7 @@ export default function LandingPage() {
   const [warningOpen, setWarningOpen] = useState(false);
   const [warningIp, setWarningIp] = useState("");
 
-  useEffect(() => {
-    cargarLogs();
-  }, []);
-
-  function aplicarFiltros(registros, filtros) {
+  const aplicarFiltros = (registros, filtros) => {
     const {
       ip = "",
       country = "",
@@ -53,20 +49,27 @@ export default function LandingPage() {
 
       return true;
     });
-  }
+  };
 
-  function cargarLogs(f = filters) {
-    setLoading(true);
-    setError("");
-    getLogs()
-      .then((data) => {
-        const lista = data || [];
-        setAllLogs(lista);
-        setLogs(aplicarFiltros(lista, f));
-      })
-      .catch((e) => setError(e.message || "Load failed"))
-      .finally(() => setLoading(false));
-  }
+  const cargarLogs = useCallback(
+    (f = filters) => {
+      setLoading(true);
+      setError("");
+      getLogs()
+        .then((data) => {
+          const lista = data || [];
+          setAllLogs(lista);
+          setLogs(aplicarFiltros(lista, f));
+        })
+        .catch((e) => setError(e.message || "Load failed"))
+        .finally(() => setLoading(false));
+    },
+    [filters]
+  );
+
+  useEffect(() => {
+    cargarLogs();
+  }, [cargarLogs]);
 
   function handleLookup() {
     if (!ip) return;
