@@ -4,6 +4,7 @@ import IpInput from "../components/IpInput";
 import IpTable from "../components/IpTable";
 import FiltersModal from "../components/FiltersModal";
 import DetailsModal from "../components/DetailsModal";
+import WarningModal from "../components/WarningModal";
 
 export default function LandingPage() {
   const [ip, setIp] = useState("");
@@ -14,10 +15,11 @@ export default function LandingPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState("");
+  const [warningOpen, setWarningOpen] = useState(false);
+  const [warningIp, setWarningIp] = useState("");
 
   useEffect(() => {
     cargarLogs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function aplicarFiltros(registros, filtros) {
@@ -71,9 +73,15 @@ export default function LandingPage() {
     setLoading(true);
     setError("");
     lookupIp(ip)
-      .then((r) => {
+      .then((record) => {
+        const yaExiste = allLogs.some((log) => log.ip === record.ip);
+        if (yaExiste) {
+          setWarningIp(record.ip);
+          setWarningOpen(true);
+          return;
+        }
         setAllLogs((prev) => {
-          const nuevaLista = [r, ...prev];
+          const nuevaLista = [record, ...prev];
           setLogs(aplicarFiltros(nuevaLista, filters));
           return nuevaLista;
         });
@@ -156,6 +164,12 @@ export default function LandingPage() {
       {selected && (
         <DetailsModal record={selected} onClose={() => setSelected(null)} />
       )}
+
+      <WarningModal
+        open={warningOpen}
+        ip={warningIp}
+        onClose={() => setWarningOpen(false)}
+      />
     </div>
   );
 }
