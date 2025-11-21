@@ -1,4 +1,3 @@
-// src/pages/LandingPage.jsx
 import { useEffect, useState } from "react";
 import { lookupIp, getLogs, deleteLog, clearLogs } from "../api/ipApi";
 import IpInput from "../components/IpInput";
@@ -18,6 +17,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     cargarLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function aplicarFiltros(registros, filtros) {
